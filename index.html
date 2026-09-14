@@ -397,7 +397,7 @@
 
         <div class="section-title" data-i18n="section.position">Position</div>
         <div class="field">
-          <div class="pos-grid" id="posGrid"></div>
+          <div class="pos-grid" id="posGrid" dir="ltr"></div>
         </div>
 
         <div class="section-title" data-i18n="section.adjust">Adjust</div>
@@ -507,7 +507,10 @@
      picker below reads relative paths such as logos/KSGO/primary.png and
      uses KSGO as the category.
   ================================================================= */
-  let LOGO_LIBRARY = [];
+  let LOGO_LIBRARY = [
+    {category: "ksdo", name: "primary.png", src: "./logos/ksdo/primary.png"},
+    {category: "speda", name: "Asset 9@4x-8.png", src: "./logos/speda/Asset%209%404x-8.png"}
+  ];
 
   /* ===================== STATE ===================== */
   const state = {
@@ -557,7 +560,7 @@
 
   async function setLanguage(language){
     try{
-      const response = await fetch("/languages/" + language + ".json", {cache:"no-store"});
+      const response = await fetch("./languages/" + language + ".json", {cache:"no-store"});
       if(!response.ok) throw new Error("translation unavailable");
       translations = await response.json();
       currentLanguage = language;
@@ -607,14 +610,12 @@
     state.logoCache = {};
     state.selectedLogo = null;
     $("selectedLogoHint").textContent = "No logo selected";
-    LOGO_LIBRARY = files.map(file=>{
-      return {
-        org: file.category || "Logos",
-        name: file.name.replace(/\.png$/i, ""),
-        type: "PNG",
-        src: file.src
-      };
-    });
+    LOGO_LIBRARY = files.map(file=>({
+      org: file.category || "Logos",
+      name: file.name.replace(/\.png$/i, ""),
+      type: "PNG",
+      src: file.src
+    }));
     orgs = ["All", ...Array.from(new Set(LOGO_LIBRARY.map(l=>l.org)))];
     activeOrg = "All";
     searchTerm = "";
@@ -624,14 +625,8 @@
     if(!LOGO_LIBRARY.length) toast("No PNG logos were found in that folder.");
   }
 
-  async function loadLogoDirectory(){
-    try{
-      const response = await fetch("/api/logos", {cache:"no-store"});
-      if(!response.ok) throw new Error("logo scan failed");
-      setLogoLibrary(await response.json());
-    } catch(error){
-      toast("Start the local server to load logos from the logos folder.");
-    }
+  function loadLogoDirectory(){
+    setLogoLibrary(LOGO_LIBRARY);
   }
 
   /* ===================== LANDING -> APP ===================== */
