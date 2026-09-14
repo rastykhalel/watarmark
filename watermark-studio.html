@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rasty Watarmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --ink:#f6f4ef;
+    --panel:#ffffff;
+    --panel-2:#f0eee8;
+    --line: rgba(20,23,28,0.1);
+    --text:#191b1f;
+    --muted:#6b7280;
+    --amber:#0f20ed;
+    --amber-dim: rgba(201,125,31,0.14);
+    --teal:#2f8e7d;
+    --danger:#c14a3d;
+    --radius: 10px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  button{font-family:inherit;}
+  ::selection{background:var(--amber-dim);}
+
+  /* ---------- Landing ---------- */
+  #landing{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:40px 20px;
+    position:relative;
+  }
+  .brandmark{
+    width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:22px;
+  }
+  .brandmark img{width:100%;height:100%;object-fit:contain;display:block;}
+  #landing h1{font-size:clamp(2.4rem,6vw,3.6rem);font-weight:600;margin:0 0 14px;letter-spacing:-0.01em;}
+  #landing p.sub{color:var(--muted);font-size:1.1rem;max-width:480px;margin:0 0 34px;line-height:1.6;}
+  .cta{
+    background:var(--amber);color:#ffffff;border:none;
+    padding:15px 30px;border-radius:999px;font-size:1rem;font-weight:600;
+    cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 10px 24px rgba(232,163,61,0.3);
+  }
+  .cta:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(232,163,61,0.38);}
+  .feature-list{
+    display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;
+    margin-top:38px;max-width:560px;color:var(--muted);font-size:0.88rem;
+  }
+  .feature-list span{display:flex;align-items:center;gap:7px;}
+  .feature-list svg{width:14px;height:14px;color:var(--teal);flex-shrink:0;}
+
+  /* ---------- App shell ---------- */
+  #app{display:none;min-height:100vh;flex-direction:column;}
+  header.topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:1px solid var(--line);
+    background:var(--panel);position:sticky;top:0;z-index:30;
+  }
+  .topbar-left{display:flex;align-items:center;gap:10px;}
+  .topbar-left .brandmark{width:30px;height:30px;border-radius:8px;margin:0;}
+  .topbar-left .brandmark img{width:100%;height:100%;}
+  .topbar-left b{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;}
+  .topbar-right{display:flex;align-items:center;gap:8px;}
+  .language-toggle{display:flex;gap:2px;border:1px solid var(--line);border-radius:8px;padding:2px;}
+  .language-toggle button{background:transparent;border:0;color:var(--muted);padding:5px 7px;border-radius:5px;font-size:0.72rem;font-weight:700;cursor:pointer;}
+  .language-toggle button.active{background:var(--amber-dim);color:var(--amber);}
+  .landing-language{position:absolute;top:20px;right:70px;}
+  .icon-btn{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    width:36px;height:36px;border-radius:8px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:15px;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--muted);}
+  .btn{
+    border-radius:8px;padding:9px 16px;font-size:0.86rem;font-weight:600;
+    cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text);
+  }
+  .btn:hover{border-color:var(--muted);}
+  .btn.primary{background:var(--amber);border-color:var(--amber);color:#ffffff;}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn.primary:disabled{opacity:0.4;cursor:not-allowed;filter:none;}
+  .btn.danger{color:var(--danger);}
+  .btn.small{padding:6px 11px;font-size:0.78rem;}
+
+  main.workspace{
+    flex:1;display:grid;
+    grid-template-columns: 260px 1fr 320px;
+    gap:0;
+    min-height:0;
+  }
+  @media (max-width: 980px){
+    main.workspace{grid-template-columns:1fr;}
+  }
+
+  .panel{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;}
+  .panel.right{border-right:none;border-left:1px solid var(--line);}
+  @media (max-width: 980px){
+    .panel{border:none;border-bottom:1px solid var(--line);}
+  }
+  .panel-head{padding:16px 16px 10px;}
+  .panel-head h3{margin:0 0 2px;font-size:0.98rem;font-weight:600;}
+  .panel-head p{margin:0;font-size:0.78rem;color:var(--muted);}
+  .panel-scroll{flex:1;overflow-y:auto;padding:0 16px 16px;min-height:0;}
+  @media (max-width:980px){ .panel-scroll{max-height:340px;} }
+
+  /* search */
+  .search-box{
+    display:flex;align-items:center;gap:8px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:12px;
+  }
+  .search-box input{background:none;border:none;outline:none;color:var(--text);font-size:0.85rem;width:100%;}
+  .search-box svg{width:14px;height:14px;color:var(--muted);flex-shrink:0;}
+
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .chip{
+    border:1px solid var(--line);background:transparent;color:var(--muted);
+    padding:5px 11px;border-radius:999px;font-size:0.76rem;cursor:pointer;
+  }
+  .chip.active{background:var(--amber-dim);border-color:var(--amber);color:var(--amber);}
+
+  .logo-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .logo-card{
+    border:1px solid var(--line);border-radius:9px;padding:9px;cursor:pointer;
+    background:var(--panel-2);transition:border-color .12s;
+  }
+  .logo-card:hover{border-color:var(--muted);}
+  .logo-card.selected{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber);}
+  .logo-swatch{
+    height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    background:
+      linear-gradient(45deg,rgba(128,128,128,.18) 25%,transparent 25%) -6px 0/12px 12px,
+      linear-gradient(-45deg,rgba(128,128,128,.18) 25%,transparent 25%) -6px 0/12px 12px,
+      linear-gradient(45deg,transparent 75%,rgba(128,128,128,.18) 75%) -6px 0/12px 12px,
+      linear-gradient(-45deg,transparent 75%,rgba(128,128,128,.18) 75%) -6px 0/12px 12px,
+      var(--panel);
+    margin-bottom:7px;
+  }
+  .logo-swatch img{max-height:34px;max-width:80%;}
+  .logo-card .lname{font-size:0.74rem;font-weight:600;line-height:1.25;}
+  .logo-card .ltype{font-size:0.68rem;color:var(--muted);}
+  .org-heading{font-size:0.72rem;text-transform:none;color:var(--muted);margin:14px 0 8px;font-weight:600;}
+  .org-heading:first-child{margin-top:0;}
+
+  /* upload */
+  .dropzone{
+    border:1.5px dashed var(--line);border-radius:12px;padding:30px 16px;
+    text-align:center;cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .dropzone.drag{border-color:var(--amber);background:var(--amber-dim);}
+  .dropzone svg{width:26px;height:26px;color:var(--muted);margin-bottom:10px;}
+  .dropzone p{margin:0 0 3px;font-size:0.88rem;font-weight:600;}
+  .dropzone span{font-size:0.75rem;color:var(--muted);}
+
+  .center-col{display:flex;flex-direction:column;min-height:0;}
+  .preview-wrap{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:24px;min-height:280px;position:relative;
+  }
+  #previewCanvas{
+    max-width:100%;max-height:60vh;border-radius:4px;box-shadow:var(--shadow);
+    cursor:grab; touch-action:none;
+    background:
+      linear-gradient(45deg,rgba(128,128,128,.15) 25%,transparent 25%) 0 0/16px 16px,
+      linear-gradient(-45deg,rgba(128,128,128,.15) 25%,transparent 25%) 0 0/16px 16px,
+      linear-gradient(45deg,transparent 75%,rgba(128,128,128,.15) 75%) 0 0/16px 16px,
+      linear-gradient(-45deg,transparent 75%,rgba(128,128,128,.15) 75%) 0 0/16px 16px;
+  }
+  .preview-empty{color:var(--muted);text-align:center;font-size:0.9rem;}
+  .preview-nav{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    padding:0 20px 16px;font-size:0.8rem;color:var(--muted);
+  }
+  .preview-nav button{background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    width:28px;height:28px;border-radius:6px;cursor:pointer;}
+
+  /* queue strip */
+  .queue-strip{border-top:1px solid var(--line);padding:12px 16px;}
+  .queue-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .queue-head b{font-size:0.84rem;}
+  .queue-head .qactions{display:flex;gap:8px;}
+  .queue-track{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;}
+  .queue-item{
+    flex-shrink:0;width:76px;cursor:pointer;position:relative;
+  }
+  .queue-thumb{
+    width:76px;height:76px;border-radius:8px;object-fit:cover;
+    border:2px solid transparent;
+  }
+  .queue-item.active .queue-thumb{border-color:var(--amber);}
+  .queue-item .qname{font-size:0.64rem;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .queue-remove{
+    position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;
+    background:var(--danger);color:#fff;border:none;font-size:11px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .queue-empty-hint{color:var(--muted);font-size:0.78rem;}
+
+  /* controls */
+  .field{margin-bottom:18px;}
+  .field-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .field-label span.fname{font-size:0.8rem;font-weight:600;}
+  .field-label span.fval{font-size:0.78rem;color:var(--amber);font-variant-numeric:tabular-nums;}
+  input[type=range]{
+    -webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--line);outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--amber);
+    cursor:pointer;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--amber);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:var(--amber);cursor:pointer;border:2px solid var(--panel);
+  }
+  .pos-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:132px;margin:0 auto 6px;
+  }
+  .pos-cell{
+    width:40px;height:40px;border-radius:6px;border:1px solid var(--line);
+    background:var(--panel-2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .pos-cell .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
+  .pos-cell.active{border-color:var(--amber);background:var(--amber-dim);}
+  .pos-cell.active .dot{background:var(--amber);}
+
+  select, .num-input{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    padding:9px 10px;border-radius:7px;font-size:0.83rem;outline:none;
+  }
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .checkline{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text);margin-bottom:14px;cursor:pointer;}
+  .checkline input{accent-color:var(--amber);width:15px;height:15px;}
+
+  details.adv{border-top:1px solid var(--line);padding-top:14px;margin-top:4px;}
+  details.adv summary{cursor:pointer;font-size:0.82rem;font-weight:600;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px;}
+  details.adv summary::-webkit-details-marker{display:none;}
+  details.adv summary::before{content:'›';transition:transform .15s;display:inline-block;}
+  details.adv[open] summary::before{transform:rotate(90deg);}
+  details.adv .inner{padding-top:14px;}
+
+  .section-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin:18px 0 12px;}
+  .section-title:first-child{margin-top:0;}
+
+  .generate-bar{
+    border-top:1px solid var(--line);padding:14px 16px;display:flex;gap:10px;align-items:center;
+  }
+  .generate-bar .btn.primary{flex:1;padding:13px;font-size:0.92rem;}
+
+  /* results overlay */
+  #resultsView{
+    display:none;flex:1;flex-direction:column;padding:26px 20px;max-width:1000px;margin:0 auto;width:100%;
+  }
+  .results-summary{text-align:center;margin-bottom:24px;}
+  .results-summary .check{
+    width:52px;height:52px;border-radius:50%;background:var(--teal);color:#04231d;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;
+  }
+  .results-summary h2{margin:0 0 6px;font-size:1.4rem;}
+  .results-summary p{margin:0;color:var(--muted);font-size:0.88rem;}
+  .results-actions{display:flex;gap:10px;justify-content:center;margin:20px 0 28px;flex-wrap:wrap;}
+  .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  .result-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .result-card img{width:100%;height:110px;object-fit:cover;display:block;background:var(--panel-2);}
+  .result-meta{padding:10px;}
+  .result-meta .rname{font-size:0.75rem;font-weight:600;word-break:break-all;margin-bottom:3px;}
+  .result-meta .rdim{font-size:0.7rem;color:var(--muted);margin-bottom:8px;}
+  .result-meta button{width:100%;}
+  .fail-note{color:var(--danger);font-size:0.78rem;text-align:center;margin-bottom:10px;}
+
+  /* progress overlay */
+  #progressOverlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);
+    display:none;align-items:center;justify-content:center;z-index:100;
+  }
+  .progress-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px 30px;width:320px;text-align:center;
+  }
+  .progress-card p{margin:0 0 14px;font-size:0.88rem;color:var(--muted);}
+  .progress-track{height:8px;border-radius:99px;background:var(--panel-2);overflow:hidden;margin-bottom:10px;}
+  .progress-fill{height:100%;background:var(--amber);width:0%;transition:width .2s;}
+  .progress-count{font-size:0.78rem;color:var(--muted);}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--panel);border:1px solid var(--line);color:var(--text);
+    padding:11px 18px;border-radius:9px;font-size:0.82rem;box-shadow:var(--shadow);
+    z-index:200;display:none;max-width:88vw;
+  }
+  .empty-state{color:var(--muted);font-size:0.85rem;text-align:center;padding:30px 10px;}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="language-toggle landing-language" aria-label="Language"><button id="landingLangKu" class="active">KU</button></div>
+  <div class="brandmark"><img src="logo2.svg" alt="Watermark Studio logo"></div>
+  <h1 class="display">Rasty Watarmark</h1>
+  <p class="sub" data-i18n="landing.subtitle">Add professional watermarks to hundreds of images in seconds, right in your browser.</p>
+  <button class="cta" id="startBtn" data-i18n="landing.start">Start Watermarking</button>
+  <div class="feature-list">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.bulk">Bulk image processing</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.library">Organization logo library</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.resize">Resize images</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.controls">Custom watermark controls</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.zip">Download all as ZIP</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l4 4 10-10"/></svg><span data-i18n="landing.privacy">Privacy-first — nothing leaves your device</span></span>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brandmark"><img src="logo2.svg" alt="Watermark Studio logo"></div>
+      <b>Rasty Watarmark</b>
+    </div>
+    <div class="topbar-right">
+      <div class="language-toggle" aria-label="Language"><button id="langKu" class="active">KU</button></div>
+      <button class="btn small" id="clearProjectBtn" data-i18n="app.clear">Clear project</button>
+    </div>
+  </header>
+
+  <main class="workspace" id="workspaceView">
+    <!-- LEFT: Logo library -->
+    <section class="panel">
+      <div class="panel-head">
+        <h3 data-i18n="library.title">Logo library</h3>
+        <p data-i18n="library.subtitle">Choose a watermark to apply</p>
+      </div>
+      <div class="panel-scroll">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="logoSearch" data-i18n-placeholder="library.search" placeholder="Search logos…" />
+        </div>
+        <div class="chip-row" id="orgChips"></div>
+        <div id="logoLibrary"></div>
+      </div>
+    </section>
+
+    <!-- CENTER: Upload + Preview -->
+    <section class="panel center-col" style="border-right:1px solid var(--line);">
+      <div class="preview-wrap" id="previewWrap">
+        <div id="uploadZoneWrap" style="width:100%;max-width:420px;">
+          <div class="dropzone" id="dropzone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+            <p data-i18n="upload.drop">Drag &amp; drop your images</p>
+            <span data-i18n="upload.types">or tap to select · JPG · PNG · WebP</span>
+          </div>
+        </div>
+        <canvas id="previewCanvas" style="display:none;" width="800" height="600"></canvas>
+      </div>
+      <div class="preview-nav" id="previewNav" style="display:none;">
+        <button id="prevImgBtn">‹</button>
+        <span id="previewLabel">image.jpg</span>
+        <button id="nextImgBtn">›</button>
+      </div>
+      <div class="queue-strip">
+        <div class="queue-head">
+          <b id="queueCount">0 images selected</b>
+          <div class="qactions">
+            <button class="btn small" id="addMoreBtn" data-i18n="queue.add">Add images</button>
+            <button class="btn small danger" id="removeAllBtn" data-i18n="queue.remove">Remove all</button>
+          </div>
+        </div>
+        <div class="queue-track" id="queueTrack">
+          <span class="queue-empty-hint" data-i18n="queue.empty">No images uploaded yet.</span>
+        </div>
+      </div>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" multiple style="display:none;" />
+    </section>
+
+    <!-- RIGHT: Controls -->
+    <section class="panel right">
+      <div class="panel-head">
+        <h3 data-i18n="watermark.title">Watermark &amp; output</h3>
+        <p id="selectedLogoHint" data-i18n="watermark.none">No logo selected</p>
+      </div>
+      <div class="panel-scroll" id="controlsScroll">
+
+        <div class="section-title" data-i18n="section.position">Position</div>
+        <div class="field">
+          <div class="pos-grid" id="posGrid"></div>
+        </div>
+
+        <div class="section-title" data-i18n="section.adjust">Adjust</div>
+        <div class="field">
+          <div class="field-label"><span class="fname" data-i18n="field.opacity">Opacity</span><span class="fval" id="opacityVal">70%</span></div>
+          <input type="range" id="opacitySlider" min="0" max="100" value="70">
+        </div>
+        <div class="field">
+          <div class="field-label"><span class="fname" data-i18n="field.size">Logo size</span><span class="fval" id="sizeVal">22%</span></div>
+          <input type="range" id="sizeSlider" min="5" max="60" value="22">
+        </div>
+        <div class="field">
+          <div class="field-label"><span class="fname" data-i18n="field.margin">Margin</span><span class="fval" id="marginVal">5%</span></div>
+          <input type="range" id="marginSlider" min="0" max="20" value="5">
+        </div>
+        <label class="checkline"><input type="checkbox" id="lockAspect" checked> <span data-i18n="field.lock">Lock aspect ratio</span></label>
+
+        <details class="adv">
+          <summary data-i18n="field.advanced">Advanced</summary>
+          <div class="inner">
+            <div class="field">
+              <div class="field-label"><span class="fname" data-i18n="field.rotation">Rotation</span><span class="fval" id="rotVal">0°</span></div>
+              <input type="range" id="rotSlider" min="-45" max="45" value="0">
+            </div>
+            <div class="field">
+              <div class="field-label"><span class="fname" data-i18n="field.manualX">Manual X</span><span class="fval" id="manXVal">–</span></div>
+              <input type="range" id="manXSlider" min="0" max="100" value="90">
+            </div>
+            <div class="field">
+              <div class="field-label"><span class="fname" data-i18n="field.manualY">Manual Y</span><span class="fval" id="manYVal">–</span></div>
+              <input type="range" id="manYSlider" min="0" max="100" value="90">
+            </div>
+            <label class="checkline"><input type="checkbox" id="repeatToggle"> <span data-i18n="field.repeat">Repeat watermark across image</span></label>
+            <div id="repeatFields" style="display:none;">
+              <div class="row2">
+                <div class="field">
+                  <div class="field-label"><span class="fname" data-i18n="field.hSpacing">H spacing</span><span class="fval" id="hspVal">40%</span></div>
+                  <input type="range" id="hspSlider" min="10" max="100" value="40">
+                </div>
+                <div class="field">
+                  <div class="field-label"><span class="fname" data-i18n="field.vSpacing">V spacing</span><span class="fval" id="vspVal">40%</span></div>
+                  <input type="range" id="vspSlider" min="10" max="100" value="40">
+                </div>
+              </div>
+            </div>
+            <button class="btn small" id="resetSettingsBtn" data-i18n="field.reset" style="width:100%;">Reset settings</button>
+          </div>
+        </details>
+
+        <div class="section-title" data-i18n="section.output">Output</div>
+        <div class="field">
+          <select id="formatSelect">
+            <option value="image/jpeg">JPG</option>
+            <option value="image/png" data-i18n="output.png">PNG (supports transparency)</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </div>
+        <div class="field" id="qualityField">
+          <div class="field-label"><span class="fname" data-i18n="field.quality">Quality</span><span class="fval" id="qualityVal">90%</span></div>
+          <input type="range" id="qualitySlider" min="10" max="100" value="90">
+        </div>
+        <div class="field">
+          <div class="field-label"><span class="fname" data-i18n="field.suffix">Filename suffix</span></div>
+          <input class="num-input" type="text" id="suffixInput" value="_watermarked">
+        </div>
+
+      </div>
+      <div class="generate-bar">
+        <button class="btn primary" id="generateBtn" data-i18n="output.generate" disabled>Generate images</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- RESULTS -->
+  <div id="resultsView">
+    <div class="results-summary">
+      <div class="check">✓</div>
+      <h2 id="resultsHeading" data-i18n="results.title">Generation complete</h2>
+      <p id="resultsSub">0 images processed successfully.</p>
+    </div>
+    <div class="results-actions">
+      <button class="btn primary" id="downloadAllBtn" data-i18n="results.download">Download all (ZIP)</button>
+      <button class="btn" id="backToWorkspaceBtn" data-i18n="results.back">Back to workspace</button>
+      <button class="btn" id="newProjectBtn" data-i18n="results.new">Start new project</button>
+    </div>
+    <div id="failNote" class="fail-note" style="display:none;"></div>
+    <div class="results-grid" id="resultsGrid"></div>
+  </div>
+</div>
+
+<div id="progressOverlay">
+  <div class="progress-card">
+    <p data-i18n="progress">Processing images…</p>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-count" id="progressCount">0 / 0 completed</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== FOLDER-BASED LOGO LIBRARY =====================
+     The browser cannot enumerate a local folder automatically. The folder
+     picker below reads relative paths such as logos/KSGO/primary.png and
+     uses KSGO as the category.
+  ================================================================= */
+  let LOGO_LIBRARY = [];
+
+  /* ===================== STATE ===================== */
+  const state = {
+    images: [],            // {id,file,url,name,width,height,size,img}
+    activeIndex: 0,
+    selectedLogo: null,     // {org,name,type,src, imgEl}
+    logoCache: {},          // src -> HTMLImageElement
+    posMode: "preset",      // 'preset' | 'manual'
+    posPreset: "br",        // one of 9 keys
+    opacity: 70,
+    size: 22,
+    margin: 5,
+    rotation: 0,
+    lockAspect: true,
+    manX: 90,
+    manY: 90,
+    repeat: false,
+    hspacing: 40,
+    vspacing: 40,
+    format: "image/jpeg",
+    quality: 90,
+    suffix: "_watermarked",
+    results: [] // {name,blob,url,width,height,size}
+  };
+
+  const DEFAULTS = {
+    posMode:"preset", posPreset:"br", opacity:70, size:22, margin:5, rotation:0,
+    lockAspect:true, manX:90, manY:90, repeat:false, hspacing:40, vspacing:40,
+    quality:90
+  };
+
+  const POS_KEYS = [
+    ["tl","tc","tr"],
+    ["cl","cc","cr"],
+    ["bl","bc","br"]
+  ];
+  const POS_ANCHOR = {
+    tl:[0,0], tc:[0.5,0], tr:[1,0],
+    cl:[0,0.5], cc:[0.5,0.5], cr:[1,0.5],
+    bl:[0,1], bc:[0.5,1], br:[1,1]
+  };
+
+  /* ===================== HELPERS ===================== */
+  const $ = (id) => document.getElementById(id);
+  let currentLanguage = "ku";
+  let translations = {};
+
+  async function setLanguage(language){
+    try{
+      const response = await fetch("/languages/" + language + ".json", {cache:"no-store"});
+      if(!response.ok) throw new Error("translation unavailable");
+      translations = await response.json();
+      currentLanguage = language;
+      document.querySelectorAll("[data-i18n]").forEach(element=>{
+        if(translations[element.dataset.i18n]) element.textContent = translations[element.dataset.i18n];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(element=>{
+        element.placeholder = translations[element.dataset.i18nPlaceholder] || element.placeholder;
+      });
+      document.documentElement.dir = language === "ku" ? "rtl" : "ltr";
+      ["langKu", "landingLangKu"].forEach(id=>$(id).classList.toggle("active", language === "ku"));
+    } catch(error){
+      toast("Could not load the selected language.");
+    }
+  }
+
+  $("langKu").addEventListener("click", ()=>setLanguage("ku"));
+  $("landingLangKu").addEventListener("click", ()=>setLanguage("ku"));
+  setLanguage("ku");
+
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>{ t.style.display = "none"; }, 3200);
+  }
+  function fmtBytes(b){
+    if(b < 1024) return b + " B";
+    if(b < 1024*1024) return (b/1024).toFixed(1) + " KB";
+    return (b/1024/1024).toFixed(1) + " MB";
+  }
+  function loadImage(src){
+    return new Promise((resolve,reject)=>{
+      const img = new Image();
+      img.onload = ()=>resolve(img);
+      img.onerror = ()=>reject(new Error("load failed"));
+      img.src = src;
+    });
+  }
+  function getLogoImage(logo){
+    if(state.logoCache[logo.src]) return Promise.resolve(state.logoCache[logo.src]);
+    return loadImage(logo.src).then(img=>{ state.logoCache[logo.src] = img; return img; });
+  }
+
+  function setLogoLibrary(files){
+    state.logoCache = {};
+    state.selectedLogo = null;
+    $("selectedLogoHint").textContent = "No logo selected";
+    LOGO_LIBRARY = files.map(file=>{
+      return {
+        org: file.category || "Logos",
+        name: file.name.replace(/\.png$/i, ""),
+        type: "PNG",
+        src: file.src
+      };
+    });
+    orgs = ["All", ...Array.from(new Set(LOGO_LIBRARY.map(l=>l.org)))];
+    activeOrg = "All";
+    searchTerm = "";
+    $("logoSearch").value = "";
+    renderChips();
+    renderLogoLibrary();
+    if(!LOGO_LIBRARY.length) toast("No PNG logos were found in that folder.");
+  }
+
+  async function loadLogoDirectory(){
+    try{
+      const response = await fetch("/api/logos", {cache:"no-store"});
+      if(!response.ok) throw new Error("logo scan failed");
+      setLogoLibrary(await response.json());
+    } catch(error){
+      toast("Start the local server to load logos from the logos folder.");
+    }
+  }
+
+  /* ===================== LANDING -> APP ===================== */
+  $("startBtn").addEventListener("click", ()=>{
+    $("landing").style.display = "none";
+    $("app").style.display = "flex";
+    loadLogoDirectory();
+  });
+
+  /* ===================== LOGO LIBRARY UI ===================== */
+  let orgs = ["All"];
+  let activeOrg = "All";
+  let searchTerm = "";
+
+  function renderChips(){
+    const wrap = $("orgChips");
+    wrap.innerHTML = "";
+    orgs.forEach(o=>{
+      const c = document.createElement("button");
+      c.className = "chip" + (o === activeOrg ? " active" : "");
+      c.textContent = o;
+      c.addEventListener("click", ()=>{ activeOrg = o; renderChips(); renderLogoLibrary(); });
+      wrap.appendChild(c);
+    });
+  }
+
+  function renderLogoLibrary(){
+    const wrap = $("logoLibrary");
+    wrap.innerHTML = "";
+    let list = LOGO_LIBRARY.filter(l=>{
+      const matchesOrg = activeOrg === "All" || l.org === activeOrg;
+      const q = searchTerm.trim().toLowerCase();
+      const matchesSearch = !q || l.org.toLowerCase().includes(q) || l.name.toLowerCase().includes(q);
+      return matchesOrg && matchesSearch;
+    });
+    if(list.length === 0){
+      wrap.innerHTML = '<div class="empty-state">No logos match your search.</div>';
+      return;
+    }
+    const byOrg = {};
+    list.forEach(l=>{ (byOrg[l.org] = byOrg[l.org] || []).push(l); });
+    Object.keys(byOrg).forEach(org=>{
+      const h = document.createElement("div");
+      h.className = "org-heading";
+      h.textContent = org;
+      wrap.appendChild(h);
+      const grid = document.createElement("div");
+      grid.className = "logo-grid";
+      byOrg[org].forEach(logo=>{
+        const card = document.createElement("div");
+        card.className = "logo-card" + (state.selectedLogo && state.selectedLogo.src === logo.src ? " selected" : "");
+        card.innerHTML = `
+          <div class="logo-swatch"><img src="${logo.src}" alt="${logo.name}"></div>
+          <div class="lname">${logo.name}</div>
+          <div class="ltype">${logo.type}</div>`;
+        card.addEventListener("click", ()=> selectLogo(logo));
+        grid.appendChild(card);
+      });
+      wrap.appendChild(grid);
+    });
+  }
+
+  function selectLogo(logo){
+    state.selectedLogo = logo;
+    $("selectedLogoHint").textContent = logo.org + " — " + logo.name;
+    $("generateBtn").disabled = state.images.length === 0;
+    renderLogoLibrary();
+    getLogoImage(logo).then(drawPreview).catch(()=> toast("This watermark could not be loaded."));
+  }
+
+  $("logoSearch").addEventListener("input", (e)=>{ searchTerm = e.target.value; renderLogoLibrary(); });
+
+  renderChips();
+  renderLogoLibrary();
+
+  /* ===================== POSITION GRID ===================== */
+  function renderPosGrid(){
+    const grid = $("posGrid");
+    grid.innerHTML = "";
+    POS_KEYS.flat().forEach(key=>{
+      const cell = document.createElement("div");
+      cell.className = "pos-cell" + (state.posMode==="preset" && state.posPreset===key ? " active" : "");
+      cell.innerHTML = '<span class="dot"></span>';
+      cell.addEventListener("click", ()=>{
+        state.posMode = "preset";
+        state.posPreset = key;
+        renderPosGrid();
+        updateManualLabels();
+        drawPreview();
+      });
+      grid.appendChild(cell);
+    });
+  }
+  renderPosGrid();
+
+  /* ===================== IMAGE UPLOAD ===================== */
+  const ALLOWED_TYPES = ["image/jpeg","image/png","image/webp"];
+
+  function handleFiles(fileList){
+    const files = Array.from(fileList);
+    let rejected = 0;
+    const jobs = files.map(file=>{
+      if(!ALLOWED_TYPES.includes(file.type)){
+        rejected++;
+        return Promise.resolve(null);
+      }
+      const url = URL.createObjectURL(file);
+      return loadImage(url).then(img=>{
+        return {
+          id: Date.now() + "_" + Math.random().toString(36).slice(2),
+          file, url, img,
+          name: file.name,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          size: file.size
+        };
+      }).catch(()=>{
+        rejected++;
+        URL.revokeObjectURL(url);
+        return null;
+      });
+    });
+    Promise.all(jobs).then(results=>{
+      const good = results.filter(Boolean);
+      state.images.push(...good);
+      if(rejected > 0) toast(rejected + " file(s) could not be read and were skipped.");
+      if(good.length && state.images.length === good.length) state.activeIndex = 0;
+      renderQueue();
+      $("generateBtn").disabled = state.images.length === 0 || !state.selectedLogo;
+      if(state.images.length){
+        $("uploadZoneWrap").style.display = "none";
+        $("previewCanvas").style.display = "block";
+        $("previewNav").style.display = "flex";
+        drawPreview();
+      }
+    });
+  }
+
+  $("dropzone").addEventListener("click", ()=> $("fileInput").click());
+  $("addMoreBtn").addEventListener("click", ()=> $("fileInput").click());
+  $("fileInput").addEventListener("change", (e)=>{ handleFiles(e.target.files); e.target.value = ""; });
+
+  ["dragenter","dragover"].forEach(ev=>{
+    $("dropzone").addEventListener(ev, (e)=>{ e.preventDefault(); $("dropzone").classList.add("drag"); });
+  });
+  ["dragleave","drop"].forEach(ev=>{
+    $("dropzone").addEventListener(ev, (e)=>{ e.preventDefault(); $("dropzone").classList.remove("drag"); });
+  });
+  $("dropzone").addEventListener("drop", (e)=>{
+    if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+  // also allow dropping over whole preview area
+  const previewWrap = $("previewWrap");
+  ["dragenter","dragover"].forEach(ev=> previewWrap.addEventListener(ev, e=>e.preventDefault()));
+  previewWrap.addEventListener("drop", (e)=>{
+    e.preventDefault();
+    if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+
+  function renderQueue(){
+    const track = $("queueTrack");
+    track.innerHTML = "";
+    $("queueCount").textContent = state.images.length + (state.images.length === 1 ? " image selected" : " images selected");
+    if(state.images.length === 0){
+      track.innerHTML = '<span class="queue-empty-hint">No images uploaded yet.</span>';
+      return;
+    }
+    state.images.forEach((im, idx)=>{
+      const item = document.createElement("div");
+      item.className = "queue-item" + (idx === state.activeIndex ? " active" : "");
+      item.innerHTML = `
+        <img class="queue-thumb" src="${im.url}">
+        <button class="queue-remove" title="Remove">×</button>
+        <div class="qname">${im.name}</div>`;
+      item.querySelector("img").addEventListener("click", ()=>{ state.activeIndex = idx; renderQueue(); drawPreview(); });
+      item.querySelector(".queue-remove").addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        URL.revokeObjectURL(im.url);
+        state.images.splice(idx,1);
+        if(state.activeIndex >= state.images.length) state.activeIndex = Math.max(0, state.images.length-1);
+        renderQueue();
+        if(state.images.length === 0){
+          $("uploadZoneWrap").style.display = "block";
+          $("previewCanvas").style.display = "none";
+          $("previewNav").style.display = "none";
+        } else drawPreview();
+        $("generateBtn").disabled = state.images.length === 0 || !state.selectedLogo;
+      });
+      track.appendChild(item);
+    });
+    updatePreviewLabel();
+  }
+
+  $("removeAllBtn").addEventListener("click", ()=>{
+    state.images.forEach(im=>URL.revokeObjectURL(im.url));
+    state.images = [];
+    state.activeIndex = 0;
+    renderQueue();
+    $("uploadZoneWrap").style.display = "block";
+    $("previewCanvas").style.display = "none";
+    $("previewNav").style.display = "none";
+    $("generateBtn").disabled = true;
+  });
+
+  $("prevImgBtn").addEventListener("click", ()=>{
+    if(!state.images.length) return;
+    state.activeIndex = (state.activeIndex - 1 + state.images.length) % state.images.length;
+    renderQueue(); drawPreview();
+  });
+  $("nextImgBtn").addEventListener("click", ()=>{
+    if(!state.images.length) return;
+    state.activeIndex = (state.activeIndex + 1) % state.images.length;
+    renderQueue(); drawPreview();
+  });
+  function updatePreviewLabel(){
+    const im = state.images[state.activeIndex];
+    $("previewLabel").textContent = im ? `${im.name} · ${im.width}×${im.height} · ${fmtBytes(im.size)}` : "";
+  }
+
+  /* ===================== CONTROLS WIRING ===================== */
+  function bindSlider(sliderId, valId, key, suffix, onchange){
+    const s = $(sliderId);
+    s.addEventListener("input", ()=>{
+      state[key] = Number(s.value);
+      if(valId) $(valId).textContent = s.value + (suffix||"");
+      if(onchange) onchange();
+      drawPreview();
+    });
+  }
+  bindSlider("opacitySlider","opacityVal","opacity","%");
+  bindSlider("sizeSlider","sizeVal","size","%");
+  bindSlider("marginSlider","marginVal","margin","%");
+  bindSlider("rotSlider","rotVal","rotation","°");
+  bindSlider("qualitySlider","qualityVal","quality","%");
+
+  function updateManualLabels(){
+    $("manXVal").textContent = state.posMode==="manual" ? state.manX+"%" : "auto";
+    $("manYVal").textContent = state.posMode==="manual" ? state.manY+"%" : "auto";
+  }
+  $("manXSlider").addEventListener("input", (e)=>{
+    state.posMode = "manual"; state.manX = Number(e.target.value);
+    renderPosGrid(); updateManualLabels(); drawPreview();
+  });
+  $("manYSlider").addEventListener("input", (e)=>{
+    state.posMode = "manual"; state.manY = Number(e.target.value);
+    renderPosGrid(); updateManualLabels(); drawPreview();
+  });
+  updateManualLabels();
+
+  $("lockAspect").addEventListener("change", (e)=>{ state.lockAspect = e.target.checked; drawPreview(); });
+
+  $("repeatToggle").addEventListener("change", (e)=>{
+    state.repeat = e.target.checked;
+    $("repeatFields").style.display = state.repeat ? "block" : "none";
+    drawPreview();
+  });
+  bindSlider("hspSlider","hspVal","hspacing","%");
+  bindSlider("vspSlider","vspVal","vspacing","%");
+
+  $("resetSettingsBtn").addEventListener("click", ()=>{
+    Object.assign(state, DEFAULTS);
+    $("opacitySlider").value = state.opacity; $("opacityVal").textContent = state.opacity+"%";
+    $("sizeSlider").value = state.size; $("sizeVal").textContent = state.size+"%";
+    $("marginSlider").value = state.margin; $("marginVal").textContent = state.margin+"%";
+    $("rotSlider").value = state.rotation; $("rotVal").textContent = state.rotation+"°";
+    $("qualitySlider").value = state.quality; $("qualityVal").textContent = state.quality+"%";
+    $("lockAspect").checked = state.lockAspect;
+    $("repeatToggle").checked = state.repeat;
+    $("repeatFields").style.display = "none";
+    renderPosGrid(); updateManualLabels(); drawPreview();
+    toast("Watermark settings reset.");
+  });
+
+  $("clearProjectBtn").addEventListener("click", ()=>{
+    if(state.images.length && !confirm("Clear project? This removes all uploaded and generated images.")) return;
+    state.images.forEach(im=>URL.revokeObjectURL(im.url));
+    state.results.forEach(r=>URL.revokeObjectURL(r.url));
+    state.images = []; state.results = []; state.activeIndex = 0; state.selectedLogo = null;
+    Object.assign(state, DEFAULTS);
+    renderQueue(); renderLogoLibrary(); renderPosGrid();
+    $("selectedLogoHint").textContent = "No logo selected";
+    $("uploadZoneWrap").style.display = "block";
+    $("previewCanvas").style.display = "none";
+    $("previewNav").style.display = "none";
+    $("generateBtn").disabled = true;
+    $("resultsView").style.display = "none";
+    $("workspaceView").style.display = "grid";
+    toast("Project cleared.");
+  });
+
+  $("formatSelect").addEventListener("change", (e)=>{
+    state.format = e.target.value;
+    $("qualityField").style.display = state.format === "image/png" ? "none" : "block";
+  });
+  $("suffixInput").addEventListener("input", (e)=>{ state.suffix = e.target.value || "_watermarked"; });
+
+  /* ===================== WATERMARK RENDERING ===================== */
+  // Draws the watermark logo onto ctx for a canvas of size (cw,ch)
+  function paintWatermark(ctx, cw, ch, logoImg){
+    const naturalRatio = logoImg.naturalWidth / logoImg.naturalHeight;
+    let lw = (state.size/100) * cw;
+    let lh = state.lockAspect ? lw / naturalRatio : lw / naturalRatio; // aspect always kept (no independent stretch control exposed)
+    lh = lw / naturalRatio;
+
+    ctx.save();
+    ctx.globalAlpha = state.opacity/100;
+
+    function drawAt(cx, cy){
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(state.rotation * Math.PI/180);
+      ctx.drawImage(logoImg, -lw/2, -lh/2, lw, lh);
+      ctx.restore();
+    }
+
+    if(state.repeat){
+      const hsp = (state.hspacing/100) * cw;
+      const vsp = (state.vspacing/100) * ch;
+      const stepX = lw + hsp;
+      const stepY = lh + vsp;
+      for(let y = stepY/2; y < ch + lh; y += stepY){
+        for(let x = stepX/2; x < cw + lw; x += stepX){
+          drawAt(x, y);
+        }
+      }
+    } else {
+      let cx, cy;
+      if(state.posMode === "manual"){
+        cx = (state.manX/100) * cw;
+        cy = (state.manY/100) * ch;
+      } else {
+        const [ax, ay] = POS_ANCHOR[state.posPreset];
+        const marginPx = (state.margin/100) * Math.min(cw,ch);
+        cx = ax === 0 ? marginPx + lw/2 : ax === 1 ? cw - marginPx - lw/2 : cw/2;
+        cy = ay === 0 ? marginPx + lh/2 : ay === 1 ? ch - marginPx - lh/2 : ch/2;
+      }
+      drawAt(cx, cy);
+    }
+    ctx.restore();
+  }
+
+  function computeOutputSize(im){
+    return {w: im.width, h: im.height};
+  }
+
+  // Renders one image with its watermark onto a fresh canvas.
+  function renderToCanvas(im, logoImg){
+    const {w: outW, h: outH} = computeOutputSize(im);
+    const canvas = document.createElement("canvas");
+    canvas.width = outW; canvas.height = outH;
+    const ctx = canvas.getContext("2d");
+
+    if(state.format === "image/jpeg"){
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,outW,outH);
+    }
+
+    ctx.drawImage(im.img, 0, 0, outW, outH);
+
+    if(logoImg) paintWatermark(ctx, outW, outH, logoImg);
+    return canvas;
+  }
+
+  /* ===================== LIVE PREVIEW ===================== */
+  let dragging = false;
+  function drawPreview(){
+    const im = state.images[state.activeIndex];
+    const canvas = $("previewCanvas");
+    if(!im){ return; }
+    // fit preview box: use a bounded max size for screen display
+    const maxDim = 900;
+    let pw = im.width, ph = im.height;
+    if(pw > maxDim || ph > maxDim){
+      const s = Math.min(maxDim/pw, maxDim/ph);
+      pw = Math.round(pw*s); ph = Math.round(ph*s);
+    }
+    canvas.width = pw; canvas.height = ph;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,pw,ph);
+    ctx.drawImage(im.img, 0, 0, pw, ph);
+    if(state.selectedLogo && state.logoCache[state.selectedLogo.src]){
+      paintWatermark(ctx, pw, ph, state.logoCache[state.selectedLogo.src]);
+    }
+    updatePreviewLabel();
+  }
+
+  // drag-to-reposition on the canvas (manual position mode)
+  const canvasEl = $("previewCanvas");
+  function pointerToPercent(e){
+    const rect = canvasEl.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const x = Math.min(100, Math.max(0, ((clientX-rect.left)/rect.width)*100));
+    const y = Math.min(100, Math.max(0, ((clientY-rect.top)/rect.height)*100));
+    return {x,y};
+  }
+  function startDrag(e){
+    if(!state.selectedLogo || state.repeat) return;
+    dragging = true;
+    canvasEl.style.cursor = "grabbing";
+    moveDrag(e);
+  }
+  function moveDrag(e){
+    if(!dragging) return;
+    const {x,y} = pointerToPercent(e);
+    state.posMode = "manual";
+    state.manX = Math.round(x); state.manY = Math.round(y);
+    $("manXSlider").value = state.manX; $("manYSlider").value = state.manY;
+    renderPosGrid(); updateManualLabels(); drawPreview();
+  }
+  function endDrag(){ dragging = false; canvasEl.style.cursor = "grab"; }
+  canvasEl.addEventListener("mousedown", startDrag);
+  window.addEventListener("mousemove", moveDrag);
+  window.addEventListener("mouseup", endDrag);
+  canvasEl.addEventListener("touchstart", startDrag, {passive:true});
+  canvasEl.addEventListener("touchmove", moveDrag, {passive:true});
+  canvasEl.addEventListener("touchend", endDrag);
+
+  /* ===================== GENERATE ===================== */
+  $("generateBtn").addEventListener("click", async ()=>{
+    if(!state.selectedLogo || state.images.length === 0) return;
+    const logoImg = await getLogoImage(state.selectedLogo).catch(()=>null);
+    if(!logoImg){ toast("This watermark could not be loaded."); return; }
+
+    state.results.forEach(r=>URL.revokeObjectURL(r.url));
+    state.results = [];
+    const failures = [];
+
+    $("progressOverlay").style.display = "flex";
+    const total = state.images.length;
+    $("progressFill").style.width = "0%";
+    $("progressCount").textContent = `0 / ${total} completed`;
+
+    const ext = state.format === "image/png" ? "png" : state.format === "image/webp" ? "webp" : "jpg";
+    const quality = state.quality/100;
+
+    for(let i=0;i<total;i++){
+      const im = state.images[i];
+      try{
+        const canvas = renderToCanvas(im, logoImg);
+        const blob = await new Promise(res=> canvas.toBlob(res, state.format, quality));
+        if(!blob) throw new Error("encode failed");
+        const base = im.name.replace(/\.[^.]+$/, "");
+        const outName = `${base}${state.suffix}.${ext}`;
+        state.results.push({
+          name: outName, blob, url: URL.createObjectURL(blob),
+          width: canvas.width, height: canvas.height, size: blob.size
+        });
+      } catch(err){
+        failures.push(im.name);
+      }
+      $("progressFill").style.width = Math.round(((i+1)/total)*100) + "%";
+      $("progressCount").textContent = `${i+1} / ${total} completed`;
+      await new Promise(r=>setTimeout(r,0)); // keep UI responsive
+    }
+
+    $("progressOverlay").style.display = "none";
+    showResults(failures);
+  });
+
+  function showResults(failures){
+    $("workspaceView").style.display = "none";
+    $("resultsView").style.display = "flex";
+    $("resultsSub").textContent = `${state.results.length} image${state.results.length===1?"":"s"} processed successfully.`;
+    if(failures.length){
+      $("failNote").style.display = "block";
+      $("failNote").textContent = `${failures.length} image${failures.length===1?"":"s"} failed to process: ${failures.join(", ")}`;
+    } else {
+      $("failNote").style.display = "none";
+    }
+    const grid = $("resultsGrid");
+    grid.innerHTML = "";
+    state.results.forEach(r=>{
+      const card = document.createElement("div");
+      card.className = "result-card";
+      card.innerHTML = `
+        <img src="${r.url}">
+        <div class="result-meta">
+          <div class="rname">${r.name}</div>
+          <div class="rdim">${r.width}×${r.height} · ${fmtBytes(r.size)}</div>
+          <button class="btn small">Download</button>
+        </div>`;
+      card.querySelector("button").addEventListener("click", ()=>{
+        const a = document.createElement("a");
+        a.href = r.url; a.download = r.name; a.click();
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  $("backToWorkspaceBtn").addEventListener("click", ()=>{
+    $("resultsView").style.display = "none";
+    $("workspaceView").style.display = "grid";
+  });
+
+  $("newProjectBtn").addEventListener("click", ()=>{
+    $("clearProjectBtn").click();
+    $("resultsView").style.display = "none";
+    $("workspaceView").style.display = "grid";
+  });
+
+  $("downloadAllBtn").addEventListener("click", async ()=>{
+    if(!state.results.length) return;
+    const btn = $("downloadAllBtn");
+    const original = btn.textContent;
+    btn.textContent = "Zipping…"; btn.disabled = true;
+    try{
+      const zip = new JSZip();
+      state.results.forEach(r=> zip.file(r.name, r.blob));
+      const content = await zip.generateAsync({type:"blob"});
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url; a.download = "watermarked-images.zip"; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    } catch(err){
+      toast("Could not create ZIP file.");
+    } finally {
+      btn.textContent = original; btn.disabled = false;
+    }
+  });
+
+  /* keyboard shortcuts: generate + upload */
+  window.addEventListener("keydown", (e)=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="o" && $("app").style.display!=="none"){
+      e.preventDefault(); $("fileInput").click();
+    }
+    if((e.ctrlKey||e.metaKey) && e.key==="Enter" && $("app").style.display!=="none"){
+      e.preventDefault(); if(!$("generateBtn").disabled) $("generateBtn").click();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
