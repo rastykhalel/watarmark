@@ -503,12 +503,16 @@
   "use strict";
 
   /* ===================== FOLDER-BASED LOGO LIBRARY =====================
-     The browser cannot enumerate a local folder automatically. The folder
-     picker below reads relative paths such as logos/KSGO/primary.png and
-     uses KSGO as the category.
+     The browser cannot enumerate a local folder automatically. These entries
+     map the app to the current logo folders used in the project.
   ================================================================= */
   let LOGO_LIBRARY = [
-    {category: "ksdo", name: "primary.png", src: "./logos/ksdo/primary.png"},
+    {category: "kso", name: "Logo KSDO", src: encodeURI("./logos/kso/Logo KSDO.png")},
+    {category: "kso", name: "logo-02", src: encodeURI("./logos/kso/logo-02.png")},
+    {category: "kso", name: "new png", src: encodeURI("./logos/kso/new png.png")},
+    {category: "kso", name: "nori cihan Arabic copy", src: encodeURI("./logos/kso/nori cihan Arabic copy.png")},
+    {category: "kso", name: "nori cihan Sorani[1] copy", src: encodeURI("./logos/kso/nori cihan Sorani[1] copy.png")},
+    {category: "kso", name: "لۆگۆی تاجی زێرین", src: encodeURI("./logos/kso/لۆگۆی تاجی زێرین.PNG")},
     {category: "speda", name: "Asset 9@4x-8.png", src: "./logos/speda/Asset%209%404x-8.png"},
     {category: "hana", name: "1.png", src: "./logos/hana/1.png"},
     {category: "hana", name: "2.png", src: "./logos/hana/2.png"},
